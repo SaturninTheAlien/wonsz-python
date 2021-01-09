@@ -30,7 +30,7 @@ class Point:
 class TextInFrame():
 
     __slots__ = "fillColor", "borderColor", "strokeWidth", "font", "fontColor", "_surface", "_content"
-    def __init__(self,strokeWidth,fillColor,borderColor, font,fontColor):
+    def __init__(self,fillColor,borderColor, font,fontColor, strokeWidth=5):
 
         self._content = None
         self._surface = None
@@ -67,3 +67,9 @@ class TextInFrame():
         pygame.draw.rect(screen, self.borderColor, (pos_x+self.strokeWidth , pos_y+var2,  var1 - 2*self.strokeWidth, self.strokeWidth))
 
         screen.blit(self._content, (pos_x+20,pos_y+20))
+
+    def get_width(self) -> int:
+        return self._content.get_width() + 40
+
+    def get_height(self) -> int:
+        return self._content.get_height() + 40

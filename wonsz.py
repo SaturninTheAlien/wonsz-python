@@ -25,10 +25,15 @@ class Wonsz1App:
 
         self.font = pygame.font.Font(None, SCREEN_WIDTH // 24)
 
-        self.score_gui = TextInFrame(5,(0,0,255,128),(255,0,0,128),self.font,(255,255,0,255) )
+        self.score_gui = TextInFrame( (0,0,255,128),(255,0,0),self.font,(255,255,0) )
+        self.paused_gui = TextInFrame( (255,255,0,128), (255,0,0), self.font, (0,0,255))
+
+        self.paused_gui.updateContent("GAME PAUSED: press \"p\" to continue.")
+
         self.updateScore()
 
         self.showGUI = True
+        self.paused = False
 
     def render(self,screen):
 
@@ -40,6 +45,11 @@ class Wonsz1App:
 
         if self.showGUI: 
             self.score_gui.render(screen,21,21)
+
+
+        if self.paused:
+            self.paused_gui.render(screen,
+            (SCREEN_WIDTH - self.paused_gui.get_width()) // 2, (SCREEN_HEIGHT - self.paused_gui.get_height()) //2 )
 
 
     def onMouseMovement(self,d_x:int,d_y:int):
@@ -89,6 +99,8 @@ def main():
     clock = pygame.time.Clock()
     game = Wonsz1App()
 
+    mouse_pos = None
+
     quit = False
     while not quit:
         for event in pygame.event.get():
@@ -101,20 +113,30 @@ def main():
                 elif event.key == pygame.K_F1:
                     game.showGUI = not game.showGUI
 
+                elif event.key == pygame.K_p:
+                    game.paused = not game.paused
+
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 
-                mouse_pos = pygame.mouse.get_pos()
-
+                if not game.paused:
+                    mouse_pos = pygame.mouse.get_pos()
+                else:
+                    mouse_pos = None
+                
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                pos1 = pygame.mouse.get_pos()
+                
+                if not game.paused and mouse_pos is not None:
+                    pos1 = pygame.mouse.get_pos()
 
-                d_x = pos1[0] - mouse_pos[0]
-                d_y = pos1[1] - mouse_pos[1]
+                    d_x = pos1[0] - mouse_pos[0]
+                    d_y = pos1[1] - mouse_pos[1]
 
-                game.onMouseMovement(d_x,d_y)
+                    game.onMouseMovement(d_x,d_y)
 
 
-        game.onUpdate()
+        if not game.paused:
+            game.onUpdate()
+
         game.render(screen)
 
         pygame.display.flip()
