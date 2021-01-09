@@ -151,12 +151,13 @@ class SnakeSegment:
 
 class SnakeHead(SnakeSegment):
 
-    __slots__ = ("t_anim","costume")
+    __slots__ = ("t_anim","costume","next_direction")
 
     def __init__(self):
         super().__init__()
         self.t_anim = 0
         self.costume = 0
+        self.next_direction = None
 
     def onUpdate(self,previous):
 
@@ -172,6 +173,12 @@ class SnakeHead(SnakeSegment):
                     self.inflection = True
                     self.direction = MovementDirection.LEFT
 
+                elif self.next_direction is not None:
+
+                    if self.next_direction == MovementDirection.LEFT or self.next_direction == MovementDirection.RIGHT:
+                        self.inflection = True
+                        self.direction = self.next_direction
+                        self.next_direction = None
             else:
                 if keys[pygame.K_UP]:
                     self.inflection = True
@@ -180,6 +187,13 @@ class SnakeHead(SnakeSegment):
                 elif keys[pygame.K_DOWN]:
                     self.inflection = True
                     self.direction = MovementDirection.DOWN
+
+                elif self.next_direction is not None:
+
+                    if self.next_direction == MovementDirection.UP or self.next_direction == MovementDirection.DOWN:
+                        self.inflection = True
+                        self.direction = self.next_direction
+                        self.next_direction = None
 
             if self.inflection:
                 self.zez.x = self.pos.x
@@ -256,7 +270,13 @@ class Snake:
             self.addSegment()
 
 
-    
+    def onMouseMovement(self, d_x:int,d_y:int):
+
+        if abs(d_x) > abs(d_y) + 30:
+            self.head.next_direction = MovementDirection.LEFT if d_x < 0 else MovementDirection.RIGHT
+
+        elif abs(d_y) > abs(d_x) + 30:
+            self.head.next_direction = MovementDirection.UP if d_y < 0 else MovementDirection.DOWN
 
     def onUpdate(self):
         self.segmentList[-1].inflection = False
@@ -341,8 +361,13 @@ if __name__ == "__main__":
     snake1 = Snake()
     clock = pygame.time.Clock()
 
+
+
     quit = False
+    mouse_pos = (0,0)
+
     while not quit:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit = True
@@ -354,6 +379,17 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_s:
                     snake1.addSegment()
 
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+                mouse_pos = pygame.mouse.get_pos()
+
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                pos1 = pygame.mouse.get_pos()
+
+                d_x = pos1[0] - mouse_pos[0]
+                d_y = pos1[1] - mouse_pos[1]
+
+                snake1.onMouseMovement(d_x,d_y)
 
         snake1.onUpdate()
 

@@ -41,6 +41,10 @@ class Wonsz1App:
         if self.showGUI: 
             self.score_gui.render(screen,21,21)
 
+
+    def onMouseMovement(self,d_x:int,d_y:int):
+        self.snake.onMouseMovement(d_x,d_y)
+
     def findNewPositionForApple(self):
         
         pos_x = random.randint(100, SCREEN_WIDTH  - 100)
@@ -96,6 +100,18 @@ def main():
                     quit = True
                 elif event.key == pygame.K_F1:
                     game.showGUI = not game.showGUI
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+                mouse_pos = pygame.mouse.get_pos()
+
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                pos1 = pygame.mouse.get_pos()
+
+                d_x = pos1[0] - mouse_pos[0]
+                d_y = pos1[1] - mouse_pos[1]
+
+                game.onMouseMovement(d_x,d_y)
 
 
         game.onUpdate()
